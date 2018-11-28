@@ -17,7 +17,7 @@ class AVLTree():
 			for i in data:
 				self.insert(i)
 
-	def height(self):
+	def height_tree(self):
 		if self.node:
 			return self.node.height
 		else:
@@ -175,13 +175,13 @@ class AVLTree():
 		else:
 			return
 
-	def print(self, level=0, pref="#"):
+	def print_tree(self, level=0, pref="#"):
 		#Atualizandoas heights antes de balancear
 		self.update_height()
 		self.update_balance()
 		if (self.node != None):
 			print('\t' * level * 2, pref, "[",self.node.value,"]", '$' if self.is_leaf() else ' ')
 			if self.node.leftChild != None:
-				self.node.rightChild.print(level + 1, 'R')
+				self.node.rightChild.print_tree(level + 1, 'R')
 			if self.node.leftChild != None:
-				self.node.leftChild.print(level + 1, 'L')
+				self.node.leftChild.print_tree(level + 1, 'L')
