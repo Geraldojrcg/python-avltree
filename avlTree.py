@@ -28,7 +28,6 @@ class AVLTree():
 
 	def insert(self, value):
 		tree = self.node
-
 		newnode = Node(value)
 
 		if tree == None:
@@ -40,45 +39,52 @@ class AVLTree():
 		elif value > tree.value:
 			self.node.rightChild.insert(value)
 
+		#rebalanceando a árvore
 		self.rebalance()
 
-	def update_heights(self, recurse=True):
-		if not self.node == None:
-			if recurse:
+	def update_height(self, recursive=True):
+		#atualizando a altura
+		if self.node is not None:
+			#recursive=true, percorre toda a árvore
+			if recursive:
 				if self.node.leftChild != None:
-					self.node.leftChild.update_heights()
+					self.node.leftChild.update_height()
 				if self.node.rightChild != None:
-					self.node.rightChild.update_heights()
+					self.node.rightChild.update_height()
 
+			#pegando a maior altura, entre as sub-árvores da esquerda e direita
 			self.height = max(self.node.leftChild.height,
 							  self.node.rightChild.height) + 1
 		else:
 			self.height = -1
 
-	def update_balances(self, recurse=True):
+	def update_balance(self, recursive=True):
 		#atualizando o fator de balanceamento
 		if not self.node == None:
-			if recurse:
+			#recursive=true, percorre toda a árvore
+			if recursive:
 				if self.node.leftChild != None:
-					self.node.leftChild.update_balances()
+					self.node.leftChild.update_balance()
 				if self.node.rightChild != None:
-					self.node.rightChild.update_balances()
+					self.node.rightChild.update_balance()
+			
 			#equação de balanceamento
 			self.balance = self.node.leftChild.height - self.node.rightChild.height
 		else:
 			self.balance = 0
 
 	def check_balanced(self):
-		# fazendo o balancamento para ter certeza de que tudo está balanceado
-		self.update_heights()
-		self.update_balances()
+		# fazendo o balancamento para ter certeza de que tudo está balanceado e atualizando a altura
+		self.update_height()
+		self.update_balance()
 		if self == None or self.node == None:
 			return True
 		return (abs(self.balance) < 2) and self.node.leftChild.check_balanced() and self.node.rightChild.check_balanced()
 
 	def rebalance(self):
-		self.update_heights(False)
-		self.update_balances(False)
+		# atualizando a altura e o fator de balanceamento
+		self.update_height(False)
+		self.update_balance(False)
 		while self.balance < -1 or self.balance > 1:
 			if self.balance > 1:
 				if self.node.leftChild.balance < 0:
@@ -96,26 +102,26 @@ class AVLTree():
 
 	def rrotate(self):
 		#rodando para a direita, girando sobre si
-		A = self.node
-		B = self.node.leftChild.node
-		T = B.rightChild.node
+		aux1 = self.node
+		aux2 = self.node.leftChild.node
+		T = aux2.rightChild.node
 
-		self.node = B
-		B.rightChild.node = A
-		A.leftChild.node = T
+		self.node = aux2
+		aux2.rightChild.node = aux1
+		aux1.leftChild.node = T
 
 	def lrotate(self):
 		#rodando para a esquerda, girando sobre si
-		A = self.node
-		B = self.node.rightChild.node
-		T = B.leftChild.node
+		aux1 = self.node
+		aux2 = self.node.rightChild.node
+		T = aux2.leftChild.node
 
-		self.node = B
-		B.leftChild.node = A
-		A.rightChild.node = T
+		self.node = aux2
+		aux2.leftChild.node = aux1
+		aux1.rightChild.node = T
 
 	def logical_successor(self, node):
-		#achar o menor value na sub-arvore da direita
+		#achar o menor nó na sub-arvore da direita
 		node = node.rightChild.node
 		if node != None:
 			while node.leftChild != None:
@@ -128,14 +134,18 @@ class AVLTree():
 	def delete(self, value):
 		if self.node != None:
 			if self.node.value == value:
+				#checando se o node atual é folha
 				if self.node.leftChild.node == None and self.node.rightChild.node == None:
 					self.node = None
-				# para apenas uma sub-arvore
+				#checando se o filho esquerdo é nulo e atualizando o node
 				elif self.node.leftChild.node == None:
 					self.node = self.node.rightChild.node
+				#checando se o filho direito é nulo e atualizando o node
 				elif self.node.rightChild.node == None:
 					self.node = self.node.leftChild.node
-				# para as duas sub-arvores cheias, deve-se encontrar um sucessor
+
+				#se os dois filhos existirem, deve-se encontrar um sucessor
+				#para ficar no lugar do node excluido
 				else:
 					replacement = self.logical_successor(self.node)
 					if replacement != None:
@@ -148,11 +158,13 @@ class AVLTree():
 			elif value > self.node.value:
 				self.node.rightChild.delete(value)
 
+			#rebalanceando a árvore
 			self.rebalance()
 		else:
 			return
 
 	def find(self, value):
+		#encontrar o vule na sub-árvore e retornar seu node
 		if self.node != None:
 			if self.node.value == value:
 				return self.node
@@ -163,38 +175,13 @@ class AVLTree():
 		else:
 			return
 
-	def print(self, level=0, pref='#'):
+	def print(self, level=0, pref="#"):
 		#Atualizandoas heights antes de balancear
-		self.update_heights()
-		self.update_balances()
+		self.update_height()
+		self.update_balance()
 		if (self.node != None):
-			print('\t' * level * 2, pref, self.node.value, '$' if self.is_leaf() else ' ')
+			print('\t' * level * 2, pref, "[",self.node.value,"]", '$' if self.is_leaf() else ' ')
 			if self.node.leftChild != None:
 				self.node.rightChild.print(level + 1, 'R')
 			if self.node.leftChild != None:
 				self.node.leftChild.print(level + 1, 'L')
-
-
-if __name__ == "__main__":
-	a = AVLTree()
-	list = [5,3,4,1,2,0]
-	for i in list:
-		a.insert(i)
-
-	a.print()
-	print("deleting: ", 1)
-	print("deleting: ", 5)
-	a.delete(1)
-	a.delete(5)
-	a.print()
-	print("Input: ", list)
-	for i in list:
-		a.insert(i)
-	a.print()
-	print("deleting: ", 3)
-	print("deleting: ", 4)
-	a.delete(3)
-	a.delete(4)
-	a.print()
-	print("is balanced:",a.check_balanced())
-	print(a.find(2))
