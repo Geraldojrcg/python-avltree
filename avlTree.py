@@ -53,8 +53,7 @@ class AVLTree():
 					self.node.rightChild.update_height()
 
 			#pegando a maior altura, entre as sub-árvores da esquerda e direita
-			self.height = max(self.node.leftChild.height,
-							  self.node.rightChild.height) + 1
+			self.height = max(self.node.leftChild.height, self.node.rightChild.height) + 1
 		else:
 			self.height = -1
 
@@ -85,26 +84,31 @@ class AVLTree():
 		# atualizando a altura e o fator de balanceamento
 		self.update_height(False)
 		self.update_balance(False)
+		# enquanto os fatores estiverem desbalanceados
 		while self.balance < -1 or self.balance > 1:
 			if self.balance > 1:
 				if self.node.leftChild.balance < 0:
 					self.node.leftChild.lrotate()
-					self.check_balanced()
+					self.update_height()
+					self.update_balance()
 				self.rrotate()
-				self.check_balanced()
+				self.update_height()
+				self.update_balance()
 
 			if self.balance < -1:
 				if self.node.rightChild.balance > 0:
 					self.node.rightChild.rrotate()
-					self.check_balanced()
+					self.update_height()
+					self.update_balance()
 				self.lrotate()
-				self.check_balanced()
+				self.update_height()
+				self.update_balance()
 
 	def rrotate(self):
 		#rodando para a direita, girando sobre si
-		aux1 = self.node
-		aux2 = self.node.leftChild.node
-		T = aux2.rightChild.node
+		aux1 = self.node #no atual
+		aux2 = self.node.leftChild.node #filho esquerdo
+		T = aux2.rightChild.node #filho direito do filho esuqerdo
 
 		self.node = aux2
 		aux2.rightChild.node = aux1
@@ -112,9 +116,9 @@ class AVLTree():
 
 	def lrotate(self):
 		#rodando para a esquerda, girando sobre si
-		aux1 = self.node
-		aux2 = self.node.rightChild.node
-		T = aux2.leftChild.node
+		aux1 = self.node #no atual
+		aux2 = self.node.rightChild.node #filho direito
+		T = aux2.leftChild.node #filho esquerdo do filho direito
 
 		self.node = aux2
 		aux2.leftChild.node = aux1
